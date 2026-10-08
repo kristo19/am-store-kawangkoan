@@ -553,7 +553,7 @@
     <!-- =====================================================
          SUPABASE
          ===================================================== -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
     <script>
         /*
@@ -569,8 +569,34 @@
          */
 
         const SUPABASE_URL = "https://pdivyoimgivysucthumk.supabase.co/rest/v1/";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkaXZ5b2ltZ2l2eXN1Y3RodW1rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0NDEzODgsImV4cCI6MjEwNzAxNzM4OH0.upaZOW3SlxEjYodwdwenUqeRw0RpTr9_3ZoKOm4Mqhk
-        ";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkaXZ5b2ltZ2l2eXN1Y3RodW1rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0NDEzODgsImV4cCI6MjEwNzAxNzM4OH0.upaZOW3SlxEjYodwdwenUqeRw0RpTr9_3ZoKOm4Mqhk";
+
+        if (
+            !SUPABASE_URL ||
+            SUPABASE_URL.includes("GANTI_DENGAN") ||
+            !SUPABASE_ANON_KEY ||
+            SUPABASE_ANON_KEY.includes("GANTI_DENGAN")
+        ) {
+            console.error("Supabase belum dikonfigurasi. Isi SUPABASE_URL dan SUPABASE_ANON_KEY.");
+            document.getElementById("products").innerHTML = `
+                <div class="empty-products">
+                    <h3>Supabase belum terhubung</h3>
+                    <p>Periksa SUPABASE_URL dan SUPABASE_ANON_KEY di file index.html.</p>
+                </div>
+            `;
+            throw new Error("Supabase configuration missing");
+        }
+
+        if (!window.supabase || typeof window.supabase.createClient !== "function") {
+            console.error("Library Supabase JS gagal dimuat.");
+            document.getElementById("products").innerHTML = `
+                <div class="empty-products">
+                    <h3>Library Supabase gagal dimuat</h3>
+                    <p>Periksa koneksi internet dan CDN Supabase.</p>
+                </div>
+            `;
+            throw new Error("Supabase JS library unavailable");
+        }
 
         const supabaseClient = window.supabase.createClient(
             SUPABASE_URL,
@@ -695,7 +721,7 @@
                 .order("created_at", { ascending: false });
 
             if (error) {
-                console.error("Supabase error:", error);
+                console.error("Supabase error:", error.message || error);
 
                 productsContainer.innerHTML = `
                     <div class="empty-products">

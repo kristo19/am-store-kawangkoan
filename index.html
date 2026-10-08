@@ -396,7 +396,7 @@
         <a href="#tentang">Tentang Kami</a>
     </nav>
 
-    <a href="#" class="cart">
+    <a href="checkout.html" class="cart">
         🛒 Keranjang
     </a>
 
@@ -774,8 +774,7 @@
          * =====================================================
          *
          * Untuk tahap ini kita simpan keranjang di browser.
-         * Pada tahap berikutnya kita akan membuat halaman
-         * keranjang + checkout + penyimpanan order ke Supabase.
+         * Checkout & pembayaran ada di checkout.html.
          */
 
         function getCart() {
@@ -850,37 +849,6 @@
                     `🛒 Keranjang (${totalQuantity})`;
             }
         }
-
-        /*
-         * Tombol keranjang untuk sementara menampilkan isi
-         * keranjang. Nanti akan kita ganti dengan halaman
-         * keranjang yang lengkap.
-         */
-        document.querySelector(".cart")?.addEventListener(
-            "click",
-            function(event) {
-                event.preventDefault();
-
-                const cart = getCart();
-
-                if (cart.length === 0) {
-                    alert("Keranjang masih kosong.");
-                    return;
-                }
-
-                const total = cart.reduce(
-                    (sum, item) =>
-                        sum + (item.price * item.quantity),
-                    0
-                );
-
-                alert(
-                    `Ada ${cart.reduce((s, i) => s + i.quantity, 0)} barang di keranjang.\n\n` +
-                    `Total: ${formatRupiah(total)}\n\n` +
-                    `Halaman checkout akan kita buat pada tahap berikutnya.`
-                );
-            }
-        );
 
         updateCartCount();
 

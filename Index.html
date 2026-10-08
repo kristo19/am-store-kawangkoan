@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AM STORE KAWANGKOAN</title>
+
+    <meta
+        name="description"
+        content="AM STORE KAWANGKOAN - Fashion wanita, anak dan kebutuhan rumah tangga."
+    >
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #fffafa;
+            color: #333;
+        }
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        header {
+            background: #f3c5c6;
+            padding: 18px 6%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: #222;
+        }
+
+        nav {
+            display: flex;
+            gap: 25px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        nav a:hover {
+            opacity: 0.6;
+        }
+
+        .cart {
+            background: #333;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        /* =========================
+           HERO
+        ========================= */
+
+        .hero {
+            min-height: 500px;
+            display: flex;
+            align-items: center;
+            padding: 60px 8%;
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(255,250,250,0.98),
+                    rgba(255,250,250,0.75)
+                ),
+                url("https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1800&q=80")
+                center/cover;
+        }
+
+        .hero-content {
+            max-width: 600px;
+        }
+
+        .hero small {
+            font-size: 13px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .hero h1 {
+            font-size: clamp(42px, 7vw, 75px);
+            line-height: 0.95;
+            margin: 15px 0;
+            color: #222;
+        }
+
+        .hero p {
+            font-size: 17px;
+            line-height: 1.7;
+            max-width: 500px;
+            color: #555;
+        }
+
+        .hero-button {
+            display: inline-block;
+            margin-top: 28px;
+            background: #222;
+            color: white;
+            padding: 14px 28px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        /* =========================
+           CATEGORY
+        ========================= */
+
+        .section {
+            padding: 70px 7%;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .section-title h2 {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .section-title p {
+            color: #777;
+        }
+
+        .categories {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 18px;
+        }
+
+        .category {
+            background: white;
+            border-radius: 18px;
+            padding: 35px 15px;
+            text-align: center;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.06);
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .category:hover {
+            transform: translateY(-5px);
+        }
+
+        .category-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        .category h3 {
+            font-size: 16px;
+        }
+
+        /* =========================
+           PRODUCTS
+        ========================= */
+
+        .products {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 22px;
+        }
+
+        .product {
+            background: white;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.06);
+        }
+
+        .product-image {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+        }
+
+        .product-info {
+            padding: 18px;
+        }
+
+        .product-info h3 {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .product-category {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 10px;
+        }
+
+        .price {
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+        /* =========================
+           ABOUT
+        ========================= */
+
+        .about {
+            background: #f3c5c6;
+            padding: 70px 10%;
+            text-align: center;
+        }
+
+        .about h2 {
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        .about p {
+            max-width: 700px;
+            margin: auto;
+            line-height: 1.8;
+            color: #444;
+        }
+
+        /* =========================
+           FOOTER
+        ========================= */
+
+        footer {
+            background: #222;
+            color: white;
+            padding: 40px 7%;
+            text-align: center;
+        }
+
+        footer h3 {
+            margin-bottom: 10px;
+        }
+
+        footer p {
+            color: #bbb;
+            font-size: 14px;
+        }
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 900px) {
+
+            .categories {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .products {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            nav {
+                display: none;
+            }
+        }
+
+        @media (max-width: 600px) {
+
+            header {
+                padding: 15px 5%;
+            }
+
+            .logo {
+                font-size: 18px;
+            }
+
+            .hero {
+                min-height: 450px;
+                padding: 50px 7%;
+            }
+
+            .hero h1 {
+                font-size: 48px;
+            }
+
+            .categories {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .products {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .section {
+                padding: 50px 5%;
+            }
+        }
+    
+        .product-image {
+            overflow: hidden;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .product-description {
+            color: #777;
+            font-size: 13px;
+            line-height: 1.5;
+            margin: 8px 0 12px;
+        }
+
+        .product-stock {
+            color: #777;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+
+        .product-button {
+            display: inline-block;
+            border: 0;
+            background: #222;
+            color: white;
+            padding: 10px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .product-button:hover {
+            opacity: 0.85;
+        }
+
+        .product-button:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        .empty-products {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px 10px;
+            color: #777;
+        }
+
+        .category.active {
+            outline: 2px solid #222;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<!-- =========================
+     HEADER
+========================= -->
+
+<header>
+
+    <div class="logo">
+        AM STORE
+    </div>
+
+    <nav>
+        <a href="#home">Home</a>
+        <a href="#kategori">Kategori</a>
+        <a href="#produk">Produk</a>
+        <a href="#tentang">Tentang Kami</a>
+    </nav>
+
+    <a href="checkout.html" class="cart">
+        🛒 Keranjang
+    </a>
+
+</header>
+
+
+<!-- =========================
+     HERO
+========================= -->
+
+<section class="hero" id="home">
+
+    <div class="hero-content">
+
+        <small>AM STORE KAWANGKOAN</small>
+
+        <h1>
+            Style Untuk<br>
+            Setiap Hari.
+        </h1>
+
+        <p>
+            Temukan berbagai pilihan fashion wanita,
+            fashion anak, tas, celana dan kebutuhan
+            rumah tangga dengan pilihan yang menarik
+            dan harga yang terjangkau.
+        </p>
+
+        <a href="#produk" class="hero-button">
+            Lihat Produk
+        </a>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     CATEGORY
+========================= -->
+
+<section class="section" id="kategori">
+
+    <div class="section-title">
+
+        <h2>Kategori</h2>
+
+        <p>
+            Temukan produk sesuai kebutuhan Anda
+        </p>
+
+    </div>
+
+
+    <div class="categories">
+
+        <div class="category" data-category="baju">
+            <div class="category-icon">👗</div>
+            <h3>Baju</h3>
+        </div>
+
+        <div class="category" data-category="celana">
+            <div class="category-icon">👖</div>
+            <h3>Celana</h3>
+        </div>
+
+        <div class="category" data-category="tas">
+            <div class="category-icon">👜</div>
+            <h3>Tas</h3>
+        </div>
+
+        <div class="category" data-category="anak">
+            <div class="category-icon">👶</div>
+            <h3>Anak</h3>
+        </div>
+
+        <div class="category" data-category="rumah-tangga">
+            <div class="category-icon">🏠</div>
+            <h3>Rumah Tangga</h3>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     PRODUCTS
+========================= -->
+
+<section class="section" id="produk">
+
+    <div class="section-title">
+
+        <h2>Produk Terbaru</h2>
+
+        <p>
+            Koleksi terbaru AM STORE
+        </p>
+
+    </div>
+        <div class="products" id="products">
+            <p id="products-loading" style="grid-column:1/-1;text-align:center;color:#777;">
+                Memuat produk...
+            </p>
+        </div>
+    </section>
+
+
+<!-- =========================
+     ABOUT
+========================= -->
+
+<section class="about" id="tentang">
+
+    <h2>
+        AM STORE KAWANGKOAN
+    </h2>
+
+    <p>
+        AM STORE hadir untuk menyediakan berbagai
+        kebutuhan fashion wanita, anak-anak dan
+        kebutuhan rumah tangga dengan pilihan produk
+        yang menarik, modern dan terjangkau.
+    </p>
+
+</section>
+
+
+<!-- =========================
+     FOOTER
+========================= -->
+
+<footer>
+
+    <h3>
+        AM STORE KAWANGKOAN
+    </h3>
+
+    <p>
+        Fashion • Anak • Tas • Rumah Tangga
+    </p>
+
+    <br>
+
+    <p>
+        © 2026 AM STORE KAWANGKOAN
+    </p>
+
+</footer>
+
+
+
+    <!-- =====================================================
+         SUPABASE
+         ===================================================== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+    <script>
+        /*
+         * =====================================================
+         * KONFIGURASI SUPABASE
+         * =====================================================
+         *
+         * GANTI 2 NILAI DI BAWAH DENGAN DATA DARI:
+         * Supabase > Project Settings > API
+         *
+         * Gunakan Publishable/Anon Key.
+         * JANGAN gunakan service_role key di website.
+         */
+
+        const SUPABASE_URL = "https://pdivyoimgivysucthumk.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkaXZ5b2ltZ2l2eXN1Y3RodW1rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0NDEzODgsImV4cCI6MjEwNzAxNzM4OH0.upaZOW3SlxEjYodwdwenUqeRw0RpTr9_3ZoKOm4Mqhk";
+
+        if (
+            !SUPABASE_URL ||
+            SUPABASE_URL.includes("GANTI_DENGAN") ||
+            !SUPABASE_ANON_KEY ||
+            SUPABASE_ANON_KEY.includes("GANTI_DENGAN")
+        ) {
+            console.error("Supabase belum dikonfigurasi. Isi SUPABASE_URL dan SUPABASE_ANON_KEY.");
+            document.getElementById("products").innerHTML = `
+                <div class="empty-products">
+                    <h3>Supabase belum terhubung</h3>
+                    <p>Periksa SUPABASE_URL dan SUPABASE_ANON_KEY di file index.html.</p>
+                </div>
+            `;
+            throw new Error("Supabase configuration missing");
+        }
+
+        if (!window.supabase || typeof window.supabase.createClient !== "function") {
+            console.error("Library Supabase JS gagal dimuat.");
+            document.getElementById("products").innerHTML = `
+                <div class="empty-products">
+                    <h3>Library Supabase gagal dimuat</h3>
+                    <p>Periksa koneksi internet dan CDN Supabase.</p>
+                </div>
+            `;
+            throw new Error("Supabase JS library unavailable");
+        }
+
+        const supabaseClient = window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_ANON_KEY
+        );
+
+        const productsContainer = document.getElementById("products");
+        const categoryElements = document.querySelectorAll(".category");
+
+        let allProducts = [];
+
+        function formatRupiah(value) {
+            return new Intl.NumberFormat("id-ID", {
+                style: "currency",
+                currency: "IDR",
+                minimumFractionDigits: 0
+            }).format(value || 0);
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function renderProducts(products) {
+            if (!products || products.length === 0) {
+                productsContainer.innerHTML = `
+                    <div class="empty-products">
+                        <h3>Produk belum tersedia</h3>
+                        <p>Silakan kembali lagi nanti.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            productsContainer.innerHTML = products.map(product => {
+                const categoryName =
+                    product.categories?.name || "Produk";
+
+                const imageUrl = product.image_url;
+
+                const imageHtml = imageUrl
+                    ? `<img src="${escapeHtml(imageUrl)}"
+                            alt="${escapeHtml(product.name)}"
+                            loading="lazy">`
+                    : `<span>Foto Produk</span>`;
+
+                const stockText = product.stock > 0
+                    ? `Stok tersedia: ${product.stock}`
+                    : "Stok habis";
+
+                return `
+                    <div class="product">
+                        <div class="product-image">
+                            ${imageHtml}
+                        </div>
+
+                        <div class="product-info">
+                            <div class="product-category">
+                                ${escapeHtml(categoryName)}
+                            </div>
+
+                            <h3>${escapeHtml(product.name)}</h3>
+
+                            ${
+                                product.description
+                                ? `<div class="product-description">
+                                    ${escapeHtml(product.description)}
+                                   </div>`
+                                : ""
+                            }
+
+                            <div class="price">
+                                ${formatRupiah(product.price)}
+                            </div>
+
+                            <div class="product-stock">
+                                ${stockText}
+                            </div>
+
+                            <button
+                                class="product-button"
+                                ${product.stock <= 0 ? "disabled" : ""}
+                                onclick="addToCart('${product.id}')">
+                                ${product.stock > 0 ? "Tambah ke Keranjang" : "Stok Habis"}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        async function loadProducts() {
+            productsContainer.innerHTML = `
+                <p style="grid-column:1/-1;text-align:center;color:#777;">
+                    Memuat produk...
+                </p>
+            `;
+
+            const { data, error } = await supabaseClient
+                .from("products")
+                .select(`
+                    id,
+                    name,
+                    slug,
+                    description,
+                    price,
+                    stock,
+                    image_url,
+                    is_featured,
+                    category_id,
+                    categories (
+                        name,
+                        slug
+                    )
+                `)
+                .eq("is_active", true)
+                .order("created_at", { ascending: false });
+
+            if (error) {
+                console.error("Supabase error:", error.message || error);
+
+                productsContainer.innerHTML = `
+                    <div class="empty-products">
+                        <h3>Produk gagal dimuat</h3>
+                        <p>Periksa koneksi Supabase dan konfigurasi API.</p>
+                    </div>
+                `;
+
+                return;
+            }
+
+            allProducts = data || [];
+            renderProducts(allProducts);
+        }
+
+        function filterProducts(categorySlug) {
+            if (categorySlug === "semua") {
+                renderProducts(allProducts);
+                return;
+            }
+
+            const filtered = allProducts.filter(product =>
+                product.categories?.slug === categorySlug
+            );
+
+            renderProducts(filtered);
+        }
+
+        categoryElements.forEach(category => {
+            category.addEventListener("click", () => {
+                categoryElements.forEach(item =>
+                    item.classList.remove("active")
+                );
+
+                category.classList.add("active");
+
+                const slug = category.dataset.category;
+
+                filterProducts(slug);
+
+                document.getElementById("produk").scrollIntoView({
+                    behavior: "smooth"
+                });
+            });
+        });
+
+        /*
+         * =====================================================
+         * KERANJANG SEMENTARA
+         * =====================================================
+         *
+         * Untuk tahap ini kita simpan keranjang di browser.
+         * Checkout & pembayaran ada di checkout.html.
+         */
+
+        function getCart() {
+            try {
+                return JSON.parse(localStorage.getItem("am_store_cart")) || [];
+            } catch {
+                return [];
+            }
+        }
+
+        function saveCart(cart) {
+            localStorage.setItem(
+                "am_store_cart",
+                JSON.stringify(cart)
+            );
+        }
+
+        function addToCart(productId) {
+            const product = allProducts.find(
+                item => item.id === productId
+            );
+
+            if (!product) return;
+
+            if (product.stock <= 0) {
+                alert("Maaf, produk ini sedang habis.");
+                return;
+            }
+
+            const cart = getCart();
+
+            const existing = cart.find(
+                item => item.product_id === productId
+            );
+
+            if (existing) {
+                if (existing.quantity >= product.stock) {
+                    alert("Jumlah yang dipilih sudah mencapai stok.");
+                    return;
+                }
+
+                existing.quantity += 1;
+            } else {
+                cart.push({
+                    product_id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    image_url: product.image_url,
+                    quantity: 1
+                });
+            }
+
+            saveCart(cart);
+
+            updateCartCount();
+
+            alert("Produk berhasil ditambahkan ke keranjang.");
+        }
+
+        function updateCartCount() {
+            const cart = getCart();
+
+            const totalQuantity = cart.reduce(
+                (total, item) => total + item.quantity,
+                0
+            );
+
+            const cartButton = document.querySelector(".cart");
+
+            if (cartButton) {
+                cartButton.textContent =
+                    `🛒 Keranjang (${totalQuantity})`;
+            }
+        }
+
+        updateCartCount();
+
+        /*
+         * MULAI AMBIL DATA DARI SUPABASE
+         */
+        loadProducts();
+    </script>
+
+</body>
+</html>

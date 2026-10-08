@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - AM STORE KAWANGKOAN</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, Helvetica, sans-serif; background: #fffafa; color: #333; }
+        header {
+            background: #f3c5c6; padding: 18px 6%;
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,.08);
+        }
+        .logo { font-size: 22px; font-weight: 800; letter-spacing: 1px; color: #222; text-decoration: none; }
+        .back { background: #333; color: #fff; padding: 10px 15px; border-radius: 20px; text-decoration: none; font-size: 13px; }
+
+        main { max-width: 1100px; margin: 30px auto; padding: 0 16px 60px; }
+        h1 { font-size: 28px; margin-bottom: 20px; }
+        .layout { display: grid; grid-template-columns: 1fr 360px; gap: 22px; align-items: start; }
+        .card { background: #fff; border-radius: 18px; padding: 22px; margin-bottom: 20px; box-shadow: 0 4px 18px rgba(0,0,0,.06); }
+        .card h2 { font-size: 18px; margin-bottom: 16px; }
+        .hidden { display: none !important; }
+        .muted { color: #777; font-size: 13px; }
+
+        /* keranjang */
+        .item { display: grid; grid-template-columns: 70px 1fr auto; gap: 14px; align-items: center; padding: 14px 0; border-bottom: 1px solid #f0e4e4; }
+        .item:last-child { border-bottom: 0; }
+        .item img, .item .noimg { width: 70px; height: 70px; border-radius: 12px; object-fit: cover; background: #eee; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #999; }
+        .item h3 { font-size: 15px; margin-bottom: 4px; }
+        .qty { display: inline-flex; align-items: center; gap: 8px; margin-top: 8px; }
+        .qty button { width: 28px; height: 28px; border-radius: 50%; border: 1px solid #ddd; background: #fff; cursor: pointer; font-size: 16px; }
+        .remove { background: none; border: 0; color: #c0392b; font-size: 12px; cursor: pointer; margin-top: 8px; display: block; margin-left: auto; }
+        .line-total { font-weight: 700; text-align: right; }
+        .warn { background: #fff4d6; color: #7a5b00; padding: 10px 12px; border-radius: 10px; font-size: 13px; margin-bottom: 12px; }
+
+        /* form */
+        label { display: block; margin: 14px 0 6px; font-weight: 700; font-size: 14px; }
+        input, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font: inherit; }
+        input:focus, textarea:focus { outline: 2px solid #f3c5c6; border-color: #e8a7a9; }
+        textarea { min-height: 80px; resize: vertical; }
+
+        /* metode pembayaran */
+        .method { display: flex; gap: 12px; align-items: center; padding: 14px; border: 2px solid #eee; border-radius: 14px; margin-bottom: 10px; cursor: pointer; }
+        .method:hover { border-color: #f3c5c6; }
+        .method.selected { border-color: #222; background: #fffafa; }
+        .method input { width: auto; accent-color: #222; }
+        .method .icon { font-size: 26px; }
+        .method .name { font-weight: 700; }
+        .method-detail { background: #fff4f4; border-radius: 12px; padding: 14px; margin: -2px 0 12px; font-size: 14px; line-height: 1.6; }
+
+        /* ringkasan */
+        .summary { position: sticky; top: 90px; }
+        .row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; }
+        .row.total { font-size: 18px; font-weight: 800; border-top: 1px dashed #ddd; padding-top: 14px; margin-top: 6px; }
+        .btn { display: block; width: 100%; border: 0; background: #222; color: #fff; padding: 15px; border-radius: 30px; font-weight: 700; font-size: 15px; cursor: pointer; text-align: center; text-decoration: none; margin-top: 14px; }
+        .btn:hover { opacity: .88; }
+        .btn:disabled { opacity: .45; cursor: not-allowed; }
+        .btn.secondary { background: #eee; color: #222; }
+        .btn.wa { background: #25d366; }
+        .error { background: #ffe2e2; color: #9b2226; padding: 12px; border-radius: 10px; margin-top: 12px; font-size: 14px; display: none; }
+        .error.show { display: block; }
+
+        /* sukses */
+        .done { max-width: 620px; margin: 0 auto; text-align: center; }
+        .done .check { font-size: 56px; }
+        .code { display: inline-block; background: #f3c5c6; padding: 8px 18px; border-radius: 20px; font-weight: 800; letter-spacing: 1px; margin: 10px 0; }
+        .pay-box { text-align: left; background: #fff4f4; border-radius: 14px; padding: 18px; margin: 18px 0; line-height: 1.7; }
+        .pay-box .num { font-size: 20px; font-weight: 800; letter-spacing: 1px; }
+        .copy { border: 0; background: #222; color: #fff; padding: 5px 12px; border-radius: 14px; font-size: 12px; cursor: pointer; margin-left: 6px; }
+        .pay-box img { max-width: 240px; width: 100%; border-radius: 12px; margin-top: 10px; display: block; }
+        .upload-box { text-align: left; border: 2px dashed #e8a7a9; border-radius: 14px; padding: 18px; margin-top: 10px; }
+        .success-msg { background: #def7e5; color: #176b36; padding: 12px; border-radius: 10px; margin-top: 12px; }
+
+        .empty { text-align: center; padding: 60px 20px; }
+        .empty .big { font-size: 56px; }
+
+        @media (max-width: 860px) {
+            .layout { grid-template-columns: 1fr; }
+            .summary { position: static; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <a class="logo" href="index.html">AM STORE</a>
+    <a class="back" href="index.html#produk">← Lanjut Belanja</a>
+</header>
+
+<main>
+
+    <!-- ===== KERANJANG KOSONG ===== -->
+    <div id="viewEmpty" class="card empty hidden">
+        <div class="big">🛒</div>
+        <h2 style="margin:12px 0 6px">Keranjang masih kosong</h2>
+        <p class="muted">Yuk pilih produk favoritmu dulu.</p>
+        <a class="btn" style="max-width:260px;margin:18px auto 0" href="index.html#produk">Lihat Produk</a>
+    </div>
+
+    <!-- ===== CHECKOUT ===== -->
+    <div id="viewCheckout" class="hidden">
+        <h1>Checkout</h1>
+
+        <div class="layout">
+            <div>
+                <div class="card">
+                    <h2>1. Keranjang Belanja</h2>
+                    <div id="cartNotice"></div>
+                    <div id="cartItems"></div>
+                </div>
+
+                <div class="card">
+                    <h2>2. Data Pembeli</h2>
+
+                    <label for="custName">Nama Lengkap *</label>
+                    <input id="custName" type="text" placeholder="Nama penerima" autocomplete="name">
+
+                    <label for="custPhone">Nomor WhatsApp *</label>
+                    <input id="custPhone" type="tel" inputmode="tel" placeholder="08123456789" autocomplete="tel">
+
+                    <label for="custAddress">Alamat Lengkap *</label>
+                    <textarea id="custAddress" placeholder="Jalan, desa/kelurahan, kecamatan, kota, patokan..." autocomplete="street-address"></textarea>
+
+                    <label for="custNotes">Catatan (opsional)</label>
+                    <input id="custNotes" type="text" placeholder="Contoh: ukuran M, warna pink">
+                </div>
+
+                <div class="card">
+                    <h2>3. Metode Pembayaran</h2>
+                    <div id="methods"><p class="muted">Memuat metode pembayaran...</p></div>
+                </div>
+            </div>
+
+            <aside class="summary">
+                <div class="card">
+                    <h2>Ringkasan</h2>
+                    <div class="row"><span>Jumlah barang</span><span id="sumQty">0</span></div>
+                    <div class="row"><span>Subtotal</span><span id="sumSubtotal">Rp0</span></div>
+                    <div class="row"><span>Ongkir</span><span class="muted">Dikonfirmasi penjual</span></div>
+                    <div class="row total"><span>Total</span><span id="sumTotal">Rp0</span></div>
+                    <button id="btnOrder" class="btn" onclick="placeOrder()">Buat Pesanan</button>
+                    <div id="orderError" class="error"></div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ===== PESANAN BERHASIL ===== -->
+    <div id="viewDone" class="hidden">
+        <div class="card done">
+            <div class="check">✅</div>
+            <h1 style="font-size:24px">Pesanan Berhasil Dibuat!</h1>
+            <p class="muted">Simpan kode pesanan Anda</p>
+            <div class="code" id="doneCode"></div>
+            <p>Total: <strong id="doneTotal"></strong></p>
+
+            <div id="donePayment"></div>
+
+            <div id="uploadSection" class="upload-box hidden">
+                <strong>Sudah transfer? Upload bukti pembayaran</strong>
+                <p class="muted" style="margin:6px 0 10px">Foto/screenshot bukti transfer (JPG/PNG, maks. 5 MB)</p>
+                <input id="proofFile" type="file" accept="image/*">
+                <button id="btnProof" class="btn" onclick="uploadProof()">Kirim Bukti Pembayaran</button>
+                <div id="proofError" class="error"></div>
+            </div>
+            <div id="proofSuccess" class="success-msg hidden">
+                Bukti pembayaran sudah terkirim. Penjual akan segera memeriksa pesanan Anda.
+            </div>
+
+            <a id="waButton" class="btn wa hidden" target="_blank" rel="noopener">Konfirmasi via WhatsApp</a>
+            <a class="btn secondary" href="index.html">Kembali ke Toko</a>
+        </div>
+    </div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+    const SUPABASE_URL = "https://pdivyoimgivysucthumk.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkaXZ5b2ltZ2l2eXN1Y3RodW1rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0NDEzODgsImV4cCI6MjEwNzAxNzM4OH0.upaZOW3SlxEjYodwdwenUqeRw0RpTr9_3ZoKOm4Mqhk";
+
+    /* Nomor WhatsApp toko (format internasional tanpa +, contoh: 6281234567890).
+       Kosongkan jika tidak ingin menampilkan tombol WhatsApp. */
+    const STORE_WHATSAPP = "";
+
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const CART_KEY = "am_store_cart";
+    const LAST_ORDER_KEY = "am_store_last_order";
+    const TYPE_ICON = { bank: "🏦", ewallet: "📱", qris: "🔳", cod: "🤝" };
+
+    let cart = [];
+    let methods = [];
+    let selectedMethodId = null;
+    let lastOrder = null;
+    let placing = false;
+
+    const $ = id => document.getElementById(id);
+
+    function formatRupiah(v) {
+        return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(v || 0);
+    }
+    function esc(v) {
+        return String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+    function readCart() {
+        try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch { return []; }
+    }
+    function writeCart() { localStorage.setItem(CART_KEY, JSON.stringify(cart)); }
+
+    function showView(name) {
+        ["viewEmpty", "viewCheckout", "viewDone"].forEach(v => $(v).classList.add("hidden"));
+        $(name).classList.remove("hidden");
+        window.scrollTo({ top: 0 });
+    }
+    function showError(id, text) {
+        const el = $(id);
+        el.textContent = text;
+        el.classList.toggle("show", !!text);
+    }
+
+    /* ---------- KERANJANG ---------- */
+
+    async function syncCartWithServer() {
+        if (!cart.length) return;
+
+        const ids = cart.map(i => i.product_id);
+        const { data, error } = await supabaseClient
+            .from("products")
+            .select("id, name, price, stock, image_url, is_active")
+            .in("id", ids);
+
+        if (error) { console.error(error); return; }
+
+        const notes = [];
+        cart = cart.filter(item => {
+            const p = (data || []).find(x => String(x.id) === String(item.product_id));
+            if (!p || !p.is_active || p.stock <= 0) {
+                notes.push(`"${item.name}" sudah tidak tersedia dan dihapus dari keranjang.`);
+                return false;
+            }
+            if (Number(p.price) !== Number(item.price)) {
+                notes.push(`Harga "${p.name}" telah diperbarui.`);
+            }
+            if (item.quantity > p.stock) {
+                notes.push(`Jumlah "${p.name}" disesuaikan dengan stok (${p.stock}).`);
+                item.quantity = p.stock;
+            }
+            item.name = p.name;
+            item.price = p.price;
+            item.image_url = p.image_url;
+            item.stock = p.stock;
+            return true;
+        });
+
+        writeCart();
+        $("cartNotice").innerHTML = notes.map(n => `<div class="warn">${esc(n)}</div>`).join("");
+    }
+
+    function renderCart() {
+        if (!cart.length) { showView("viewEmpty"); return; }
+
+        $("cartItems").innerHTML = cart.map((item, i) => `
+            <div class="item">
+                ${item.image_url
+                    ? `<img src="${esc(item.image_url)}" alt="${esc(item.name)}">`
+                    : `<div class="noimg">Foto</div>`}
+                <div>
+                    <h3>${esc(item.name)}</h3>
+                    <div class="muted">${formatRupiah(item.price)}</div>
+                    <div class="qty">
+                        <button onclick="changeQty(${i}, -1)" aria-label="Kurangi">−</button>
+                        <span>${item.quantity}</span>
+                        <button onclick="changeQty(${i}, 1)" aria-label="Tambah">+</button>
+                    </div>
+                </div>
+                <div>
+                    <div class="line-total">${formatRupiah(item.price * item.quantity)}</div>
+                    <button class="remove" onclick="removeItem(${i})">Hapus</button>
+                </div>
+            </div>
+        `).join("");
+
+        const qty = cart.reduce((s, i) => s + i.quantity, 0);
+        const total = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+        $("sumQty").textContent = qty;
+        $("sumSubtotal").textContent = formatRupiah(total);
+        $("sumTotal").textContent = formatRupiah(total);
+    }
+
+    function changeQty(index, delta) {
+        const item = cart[index];
+        if (!item) return;
+        const next = item.quantity + delta;
+        if (next <= 0) { removeItem(index); return; }
+        if (item.stock && next > item.stock) { alert("Jumlah sudah mencapai stok yang tersedia."); return; }
+        item.quantity = next;
+        writeCart();
+        renderCart();
+    }
+    function removeItem(index) {
+        cart.splice(index, 1);
+        writeCart();
+        renderCart();
+    }
+
+    /* ---------- METODE PEMBAYARAN ---------- */
+
+    async function loadMethods() {
+        const { data, error } = await supabaseClient
+            .from("payment_methods")
+            .select("*")
+            .eq("is_active", true)
+            .order("sort_order")
+            .order("created_at");
+
+        if (error) {
+            console.error(error);
+            $("methods").innerHTML = `<p class="muted">Metode pembayaran gagal dimuat. Pastikan SQL pembayaran sudah dijalankan di Supabase.</p>`;
+            return;
+        }
+        methods = data || [];
+        if (!methods.length) {
+            $("methods").innerHTML = `<p class="muted">Belum ada metode pembayaran yang tersedia. Hubungi penjual.</p>`;
+            return;
+        }
+        renderMethods();
+    }
+
+    function methodDetailHtml(m) {
+        let html = "";
+        if (m.type === "cod") {
+            html += `Bayar langsung saat barang diterima / diambil di toko.`;
+        } else if (m.type === "qris") {
+            html += `Scan kode QRIS di bawah ini setelah pesanan dibuat.`;
+        } else {
+            html += `Transfer ke <strong>${esc(m.name)}</strong>${m.account_number ? ` — ${esc(m.account_number)}` : ""}${m.account_name ? ` a.n. ${esc(m.account_name)}` : ""}.`;
+        }
+        if (m.instructions) html += `<br>${esc(m.instructions)}`;
+        return html;
+    }
+
+    function renderMethods() {
+        $("methods").innerHTML = methods.map(m => `
+            <label class="method ${m.id === selectedMethodId ? "selected" : ""}">
+                <input type="radio" name="pay" value="${esc(m.id)}" ${m.id === selectedMethodId ? "checked" : ""} onchange="selectMethod('${esc(m.id)}')">
+                <span class="icon">${TYPE_ICON[m.type] || "💳"}</span>
+                <span><span class="name">${esc(m.name)}</span></span>
+            </label>
+            ${m.id === selectedMethodId ? `<div class="method-detail">${methodDetailHtml(m)}</div>` : ""}
+        `).join("");
+    }
+    function selectMethod(id) {
+        selectedMethodId = id;
+        renderMethods();
+    }
+
+    /* ---------- BUAT PESANAN ---------- */
+
+    function normalizePhone(v) { return String(v || "").replace(/\D/g, ""); }
+
+    async function placeOrder() {
+        if (placing) return;
+        showError("orderError", "");
+
+        const name = $("custName").value.trim();
+        const phone = $("custPhone").value.trim();
+        const address = $("custAddress").value.trim();
+        const notes = $("custNotes").value.trim();
+
+        if (!cart.length) { showError("orderError", "Keranjang masih kosong."); return; }
+        if (!name || !phone || !address) { showError("orderError", "Nama, nomor WhatsApp, dan alamat wajib diisi."); return; }
+        const digits = normalizePhone(phone);
+        if (digits.length < 9 || digits.length > 15) { showError("orderError", "Nomor WhatsApp tidak valid."); return; }
+        if (!selectedMethodId) { showError("orderError", "Pilih metode pembayaran terlebih dahulu."); return; }
+
+        placing = true;
+        $("btnOrder").disabled = true;
+        $("btnOrder").textContent = "Memproses...";
+
+        try {
+            const { data, error } = await supabaseClient.rpc("create_order", {
+                p_name: name,
+                p_phone: phone,
+                p_address: address,
+                p_notes: notes || null,
+                p_payment_method_id: selectedMethodId,
+                p_items: cart.map(i => ({ product_id: String(i.product_id), quantity: i.quantity }))
+            });
+            if (error) throw error;
+
+            const method = methods.find(m => m.id === selectedMethodId);
+            lastOrder = {
+                order_code: data.order_code,
+                total: data.total,
+                phone,
+                name,
+                method,
+                proof_sent: false
+            };
+            localStorage.setItem(LAST_ORDER_KEY, JSON.stringify(lastOrder));
+
+            cart = [];
+            writeCart();
+            renderDone();
+        } catch (err) {
+            console.error(err);
+            showError("orderError", "Gagal membuat pesanan: " + (err.message || err));
+            $("btnOrder").disabled = false;
+            $("btnOrder").textContent = "Buat Pesanan";
+        } finally {
+            placing = false;
+        }
+    }
+
+    /* ---------- HALAMAN SUKSES ---------- */
+
+    function copyText(text, btn) {
+        navigator.clipboard?.writeText(text).then(() => {
+            const old = btn.textContent;
+            btn.textContent = "Tersalin ✓";
+            setTimeout(() => btn.textContent = old, 1500);
+        });
+    }
+
+    function renderDone() {
+        if (!lastOrder) return;
+        const m = lastOrder.method || {};
+
+        $("doneCode").textContent = lastOrder.order_code;
+        $("doneTotal").textContent = formatRupiah(lastOrder.total);
+
+        let pay = "";
+        if (m.type === "cod") {
+            pay = `<div class="pay-box"><strong>${TYPE_ICON.cod} ${esc(m.name)}</strong><br>
+                   Siapkan uang pas saat barang diterima. Penjual akan menghubungi Anda via WhatsApp untuk konfirmasi dan ongkir.
+                   ${m.instructions ? `<br>${esc(m.instructions)}` : ""}</div>`;
+        } else if (m.type === "qris") {
+            pay = `<div class="pay-box"><strong>${TYPE_ICON.qris} ${esc(m.name)}</strong><br>
+                   Scan QRIS berikut dan bayar sebesar <strong>${formatRupiah(lastOrder.total)}</strong>.
+                   ${m.qr_image_url ? `<img src="${esc(m.qr_image_url)}" alt="QRIS">` : ""}
+                   ${m.instructions ? `<br>${esc(m.instructions)}` : ""}</div>`;
+        } else {
+            pay = `<div class="pay-box"><strong>${TYPE_ICON[m.type] || "💳"} ${esc(m.name)}</strong><br>
+                   ${m.account_number ? `<span class="num">${esc(m.account_number)}</span>
+                     <button class="copy" onclick="copyText('${esc(m.account_number)}', this)">Salin</button><br>` : ""}
+                   ${m.account_name ? `a.n. ${esc(m.account_name)}<br>` : ""}
+                   Transfer tepat <strong>${formatRupiah(lastOrder.total)}</strong>, lalu upload bukti pembayaran di bawah.
+                   ${m.instructions ? `<br>${esc(m.instructions)}` : ""}</div>`;
+        }
+        $("donePayment").innerHTML = pay;
+
+        const needProof = m.type !== "cod";
+        $("uploadSection").classList.toggle("hidden", !needProof || lastOrder.proof_sent);
+        $("proofSuccess").classList.toggle("hidden", !(needProof && lastOrder.proof_sent));
+
+        const wa = $("waButton");
+        if (STORE_WHATSAPP) {
+            const text = `Halo AM STORE, saya ingin konfirmasi pesanan ${lastOrder.order_code} a.n. ${lastOrder.name}, total ${formatRupiah(lastOrder.total)} (${m.name}).`;
+            wa.href = `https://wa.me/${STORE_WHATSAPP}?text=${encodeURIComponent(text)}`;
+            wa.classList.remove("hidden");
+        } else {
+            wa.classList.add("hidden");
+        }
+
+        showView("viewDone");
+    }
+
+    async function uploadProof() {
+        showError("proofError", "");
+        const file = $("proofFile").files[0];
+        if (!file) { showError("proofError", "Pilih foto bukti pembayaran dulu."); return; }
+        if (!file.type.startsWith("image/")) { showError("proofError", "File harus berupa gambar."); return; }
+        if (file.size > 5 * 1024 * 1024) { showError("proofError", "Ukuran file maksimal 5 MB."); return; }
+
+        const btn = $("btnProof");
+        btn.disabled = true;
+        btn.textContent = "Mengunggah...";
+
+        try {
+            const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+            const safeExt = ["jpg", "jpeg", "png", "webp", "gif"].includes(ext) ? ext : "jpg";
+            const path = `${lastOrder.order_code}-${Date.now()}.${safeExt}`;
+
+            const { error: upErr } = await supabaseClient.storage
+                .from("payment-proofs")
+                .upload(path, file, { cacheControl: "3600", upsert: false });
+            if (upErr) throw upErr;
+
+            const { data: pub } = supabaseClient.storage.from("payment-proofs").getPublicUrl(path);
+
+            const { data: ok, error: rpcErr } = await supabaseClient.rpc("attach_payment_proof", {
+                p_order_code: lastOrder.order_code,
+                p_phone: lastOrder.phone,
+                p_url: pub.publicUrl
+            });
+            if (rpcErr) throw rpcErr;
+            if (!ok) throw new Error("Pesanan tidak ditemukan atau sudah diproses.");
+
+            lastOrder.proof_sent = true;
+            localStorage.setItem(LAST_ORDER_KEY, JSON.stringify(lastOrder));
+            renderDone();
+        } catch (err) {
+            console.error(err);
+            showError("proofError", "Gagal mengunggah: " + (err.message || err));
+            btn.disabled = false;
+            btn.textContent = "Kirim Bukti Pembayaran";
+        }
+    }
+
+    /* ---------- INIT ---------- */
+
+    async function init() {
+        cart = readCart();
+
+        // Pesanan terakhir (mis. halaman di-refresh setelah checkout)
+        if (!cart.length) {
+            try { lastOrder = JSON.parse(localStorage.getItem(LAST_ORDER_KEY)); } catch { lastOrder = null; }
+            if (lastOrder && lastOrder.order_code) { renderDone(); return; }
+            showView("viewEmpty");
+            return;
+        }
+
+        showView("viewCheckout");
+        await syncCartWithServer();
+        renderCart();
+        loadMethods();
+    }
+
+    init();
+</script>
+</body>
+</html>

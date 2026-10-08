@@ -333,7 +333,12 @@
         if (m.type === "cod") {
             html += `Bayar langsung saat barang diterima / diambil di toko.`;
         } else if (m.type === "qris") {
-            html += `Scan kode QRIS di bawah ini setelah pesanan dibuat.`;
+            html += `Scan kode QRIS di bawah ini, lalu klik "Buat Pesanan" dan upload bukti pembayaran.`;
+            if (m.qr_image_url) {
+                html += `<img src="${esc(m.qr_image_url)}" alt="QRIS" style="display:block;max-width:240px;width:100%;border-radius:12px;margin-top:10px;">`;
+            } else {
+                html += `<br><em>Gambar QRIS belum diunggah oleh penjual.</em>`;
+            }
         } else {
             html += `Transfer ke <strong>${esc(m.name)}</strong>${m.account_number ? ` — ${esc(m.account_number)}` : ""}${m.account_name ? ` a.n. ${esc(m.account_name)}` : ""}.`;
         }

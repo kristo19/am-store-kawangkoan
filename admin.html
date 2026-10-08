@@ -108,6 +108,22 @@
             .grid, .product-list { grid-template-columns: 1fr; }
             header { align-items: flex-start; flex-direction: column; }
         }
+
+        .badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700; background:#eee; }
+        .st-menunggu_pembayaran { background:#fff4d6; color:#7a5b00; }
+        .st-menunggu_konfirmasi { background:#dbeafe; color:#1e40af; }
+        .st-diproses { background:#e0e7ff; color:#3730a3; }
+        .st-dikirim { background:#fce7f3; color:#9d174d; }
+        .st-selesai { background:#def7e5; color:#176b36; }
+        .st-dibatalkan { background:#ffe2e2; color:#9b2226; }
+        .order-card { border:1px solid #eee; border-radius:12px; padding:16px; margin-bottom:14px; }
+        .order-head { display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:10px; }
+        .order-items { background:#fafafa; border-radius:8px; padding:10px; margin:10px 0; font-size:14px; }
+        .order-items div { display:flex; justify-content:space-between; gap:10px; padding:2px 0; }
+        .order-foot { display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between; }
+        .order-foot select { width:auto; }
+        .pm-row { display:flex; justify-content:space-between; gap:10px; align-items:center; flex-wrap:wrap; border:1px solid #eee; border-radius:10px; padding:12px; margin-bottom:10px; }
+        .qr-preview { width:120px; height:120px; object-fit:contain; border:1px solid #ddd; border-radius:10px; display:none; margin-top:10px; }
     </style>
 </head>
 <body>
@@ -222,8 +238,89 @@
                 Memuat produk...
             </div>
         </div>
+
+        <div class="panel">
+            <div class="topbar">
+                <div>
+                    <h2>Pesanan Masuk</h2>
+                    <p class="muted">Pantau pembayaran dan ubah status pesanan.</p>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <select id="orderFilter" onchange="renderOrders()" style="width:auto;">
+                        <option value="">Semua status</option>
+                        <option value="menunggu_pembayaran">Menunggu pembayaran</option>
+                        <option value="menunggu_konfirmasi">Menunggu konfirmasi</option>
+                        <option value="diproses">Diproses</option>
+                        <option value="dikirim">Dikirim</option>
+                        <option value="selesai">Selesai</option>
+                        <option value="dibatalkan">Dibatalkan</option>
+                    </select>
+                    <button class="btn-secondary" onclick="loadOrders()">Refresh</button>
+                </div>
+            </div>
+            <div id="orderList" style="margin-top:15px;">Memuat pesanan...</div>
+        </div>
+
+        <div class="panel">
+            <div class="topbar">
+                <div>
+                    <h2 id="pmFormTitle">Metode Pembayaran</h2>
+                    <p class="muted">Atur rekening bank, e-wallet, QRIS, atau COD yang tampil di checkout.</p>
+                </div>
+            </div>
+
+            <input type="hidden" id="pmId">
+            <div class="grid">
+                <div>
+                    <label for="pmType">Jenis *</label>
+                    <select id="pmType">
+                        <option value="bank">Transfer Bank</option>
+                        <option value="ewallet">E-Wallet (DANA, OVO, GoPay)</option>
+                        <option value="qris">QRIS</option>
+                        <option value="cod">Bayar di Tempat (COD)</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="pmName">Nama Tampilan *</label>
+                    <input id="pmName" type="text" placeholder="Contoh: Transfer BRI">
+                </div>
+                <div>
+                    <label for="pmAccountName">Atas Nama</label>
+                    <input id="pmAccountName" type="text" placeholder="AM STORE">
+                </div>
+                <div>
+                    <label for="pmAccountNumber">Nomor Rekening / HP</label>
+                    <input id="pmAccountNumber" type="text" placeholder="1234567890">
+                </div>
+                <div class="full">
+                    <label for="pmInstructions">Petunjuk (opsional)</label>
+                    <textarea id="pmInstructions" style="min-height:70px;" placeholder="Contoh: Cantumkan kode pesanan di berita transfer."></textarea>
+                </div>
+                <div>
+                    <label for="pmQr">Gambar QRIS (khusus QRIS)</label>
+                    <input id="pmQr" type="file" accept="image/*" onchange="previewQr(event)">
+                    <img id="pmQrPreview" class="qr-preview" alt="QRIS">
+                </div>
+                <div>
+                    <label for="pmSort">Urutan tampil</label>
+                    <input id="pmSort" type="number" value="0">
+                    <label style="margin-top:16px;">
+                        <input id="pmActive" type="checkbox" checked style="width:auto;margin-right:7px;">
+                        Aktif (tampil di checkout)
+                    </label>
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn-primary" id="pmSaveBtn" onclick="savePaymentMethod()">Simpan Metode</button>
+                <button class="btn-secondary" onclick="resetPmForm()">Batal / Bersihkan</button>
+            </div>
+
+            <h3 style="margin:26px 0 12px;">Daftar Metode Pembayaran</h3>
+            <div id="pmList">Memuat...</div>
+        </div>
     </section>
 </main>
+
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
@@ -330,6 +427,8 @@
 
         await loadCategories();
         await loadProducts();
+        await loadOrders();
+        await loadPaymentMethods();
     }
 
     async function loadCategories() {
@@ -608,6 +707,239 @@
             .replace(/>/g, "&gt;")
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;");
+    }
+
+
+    /* =========================================================
+       PESANAN & METODE PEMBAYARAN
+    ========================================================= */
+
+    const STATUS_LABEL = {
+        menunggu_pembayaran: "Menunggu pembayaran",
+        menunggu_konfirmasi: "Menunggu konfirmasi",
+        diproses: "Diproses",
+        dikirim: "Dikirim",
+        selesai: "Selesai",
+        dibatalkan: "Dibatalkan"
+    };
+    const TYPE_LABEL = { bank: "Transfer Bank", ewallet: "E-Wallet", qris: "QRIS", cod: "COD" };
+
+    let currentOrders = [];
+    let currentMethods = [];
+
+    async function loadOrders() {
+        const box = document.getElementById("orderList");
+        box.textContent = "Memuat pesanan...";
+
+        const { data, error } = await supabaseClient
+            .from("orders")
+            .select("*, order_items(product_name, price, quantity, subtotal)")
+            .order("created_at", { ascending: false })
+            .limit(200);
+
+        if (error) {
+            console.error(error);
+            box.textContent = "Gagal memuat pesanan: " + error.message + " (pastikan SQL checkout sudah dijalankan)";
+            return;
+        }
+        currentOrders = data || [];
+        renderOrders();
+    }
+
+    function renderOrders() {
+        const box = document.getElementById("orderList");
+        const filter = document.getElementById("orderFilter").value;
+        const list = filter ? currentOrders.filter(o => o.status === filter) : currentOrders;
+
+        if (!list.length) {
+            box.innerHTML = "<p class='muted'>Belum ada pesanan.</p>";
+            return;
+        }
+
+        box.innerHTML = list.map(o => {
+            const phone = String(o.phone).replace(/\D/g, "").replace(/^0/, "62");
+            const date = new Date(o.created_at).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" });
+            const items = (o.order_items || []).map(i =>
+                `<div><span>${escapeHtml(i.product_name)} × ${i.quantity}</span><span>${formatRupiah(i.subtotal)}</span></div>`
+            ).join("");
+            const options = Object.entries(STATUS_LABEL).map(([v, l]) =>
+                `<option value="${v}" ${o.status === v ? "selected" : ""}>${l}</option>`).join("");
+
+            return `
+            <div class="order-card">
+                <div class="order-head">
+                    <div><strong>${escapeHtml(o.order_code)}</strong> <span class="muted">· ${date}</span></div>
+                    <span class="badge st-${o.status}">${STATUS_LABEL[o.status] || o.status}</span>
+                </div>
+                <div><strong>${escapeHtml(o.customer_name)}</strong> ·
+                    <a href="https://wa.me/${phone}" target="_blank" rel="noopener">${escapeHtml(o.phone)}</a></div>
+                <div class="muted">${escapeHtml(o.address)}</div>
+                ${o.notes ? `<div class="muted">Catatan: ${escapeHtml(o.notes)}</div>` : ""}
+                <div class="order-items">${items}</div>
+                <div class="order-foot">
+                    <div>
+                        <div class="price">Total: ${formatRupiah(o.total)}</div>
+                        <div class="muted">${escapeHtml(o.payment_method_name)} (${TYPE_LABEL[o.payment_type] || o.payment_type})
+                            ${o.payment_proof_url ? ` · <a href="${escapeHtml(o.payment_proof_url)}" target="_blank" rel="noopener">Lihat bukti bayar</a>` : ""}</div>
+                    </div>
+                    <select onchange="setOrderStatus('${o.id}', this.value)">${options}</select>
+                </div>
+            </div>`;
+        }).join("");
+    }
+
+    async function setOrderStatus(id, status) {
+        const { error } = await supabaseClient.rpc("admin_set_order_status", {
+            p_order_id: id,
+            p_status: status
+        });
+
+        if (error) {
+            console.error(error);
+            showMessage("adminMessage", "Gagal mengubah status: " + error.message, "error");
+        } else {
+            showMessage("adminMessage", "Status pesanan diperbarui.", "success");
+        }
+        await loadOrders();
+        await loadProducts();
+    }
+
+    /* ---------- Metode pembayaran ---------- */
+
+    async function loadPaymentMethods() {
+        const box = document.getElementById("pmList");
+
+        const { data, error } = await supabaseClient
+            .from("payment_methods")
+            .select("*")
+            .order("sort_order")
+            .order("created_at");
+
+        if (error) {
+            console.error(error);
+            box.textContent = "Gagal memuat: " + error.message + " (pastikan SQL checkout sudah dijalankan)";
+            return;
+        }
+
+        currentMethods = data || [];
+
+        if (!currentMethods.length) {
+            box.innerHTML = "<p class='muted'>Belum ada metode pembayaran.</p>";
+            return;
+        }
+
+        box.innerHTML = currentMethods.map(m => `
+            <div class="pm-row">
+                <div>
+                    <strong>${escapeHtml(m.name)}</strong>
+                    <span class="badge">${TYPE_LABEL[m.type] || m.type}</span>
+                    <span class="badge ${m.is_active ? "st-selesai" : "st-dibatalkan"}">${m.is_active ? "Aktif" : "Nonaktif"}</span>
+                    <div class="muted">${escapeHtml(m.account_number || "")} ${m.account_name ? "a.n. " + escapeHtml(m.account_name) : ""}</div>
+                </div>
+                <div class="card-actions" style="margin:0;">
+                    <button class="btn-primary btn-small" onclick="editPaymentMethod('${m.id}')">Edit</button>
+                    <button class="btn-danger btn-small" onclick="deletePaymentMethod('${m.id}')">Hapus</button>
+                </div>
+            </div>`).join("");
+    }
+
+    function previewQr(event) {
+        const file = event.target.files[0];
+        const img = document.getElementById("pmQrPreview");
+        if (!file) { img.style.display = "none"; return; }
+        img.src = URL.createObjectURL(file);
+        img.style.display = "block";
+    }
+
+    async function savePaymentMethod() {
+        hideMessage("adminMessage");
+
+        const id = document.getElementById("pmId").value;
+        const type = document.getElementById("pmType").value;
+        const name = document.getElementById("pmName").value.trim();
+        const file = document.getElementById("pmQr").files[0];
+
+        if (!name) {
+            showMessage("adminMessage", "Nama metode pembayaran wajib diisi.", "error");
+            return;
+        }
+
+        const btn = document.getElementById("pmSaveBtn");
+        btn.disabled = true;
+        btn.textContent = "Menyimpan...";
+
+        try {
+            const payload = {
+                type,
+                name,
+                account_name: document.getElementById("pmAccountName").value.trim() || null,
+                account_number: document.getElementById("pmAccountNumber").value.trim() || null,
+                instructions: document.getElementById("pmInstructions").value.trim() || null,
+                sort_order: Number(document.getElementById("pmSort").value) || 0,
+                is_active: document.getElementById("pmActive").checked
+            };
+
+            if (file) payload.qr_image_url = await uploadPhoto(file);
+
+            const result = id
+                ? await supabaseClient.from("payment_methods").update(payload).eq("id", id)
+                : await supabaseClient.from("payment_methods").insert(payload);
+
+            if (result.error) throw result.error;
+
+            showMessage("adminMessage", "Metode pembayaran disimpan.", "success");
+            resetPmForm();
+            await loadPaymentMethods();
+        } catch (error) {
+            console.error(error);
+            showMessage("adminMessage", "Gagal menyimpan: " + (error.message || error), "error");
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "Simpan Metode";
+        }
+    }
+
+    function editPaymentMethod(id) {
+        const m = currentMethods.find(x => x.id === id);
+        if (!m) return;
+
+        document.getElementById("pmId").value = m.id;
+        document.getElementById("pmType").value = m.type;
+        document.getElementById("pmName").value = m.name || "";
+        document.getElementById("pmAccountName").value = m.account_name || "";
+        document.getElementById("pmAccountNumber").value = m.account_number || "";
+        document.getElementById("pmInstructions").value = m.instructions || "";
+        document.getElementById("pmSort").value = m.sort_order || 0;
+        document.getElementById("pmActive").checked = !!m.is_active;
+
+        const img = document.getElementById("pmQrPreview");
+        if (m.qr_image_url) { img.src = m.qr_image_url; img.style.display = "block"; }
+        else { img.style.display = "none"; }
+
+        document.getElementById("pmFormTitle").textContent = "Edit Metode Pembayaran";
+        document.getElementById("pmFormTitle").scrollIntoView({ behavior: "smooth" });
+    }
+
+    async function deletePaymentMethod(id) {
+        const m = currentMethods.find(x => x.id === id);
+        if (!m || !confirm("Hapus metode '" + m.name + "'?")) return;
+
+        const { error } = await supabaseClient.from("payment_methods").delete().eq("id", id);
+        if (error) {
+            showMessage("adminMessage", "Gagal menghapus: " + error.message, "error");
+            return;
+        }
+        await loadPaymentMethods();
+    }
+
+    function resetPmForm() {
+        ["pmId", "pmName", "pmAccountName", "pmAccountNumber", "pmInstructions"].forEach(i => document.getElementById(i).value = "");
+        document.getElementById("pmType").value = "bank";
+        document.getElementById("pmSort").value = 0;
+        document.getElementById("pmActive").checked = true;
+        document.getElementById("pmQr").value = "";
+        document.getElementById("pmQrPreview").style.display = "none";
+        document.getElementById("pmFormTitle").textContent = "Metode Pembayaran";
     }
 
     async function init() {

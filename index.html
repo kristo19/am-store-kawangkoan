@@ -374,6 +374,227 @@
             outline: 2px solid #222;
         }
 
+        /* =========================
+           PRODUK BISA DIKLIK
+        ========================= */
+
+        .product {
+            cursor: pointer;
+            transition: transform 0.25s, box-shadow 0.25s;
+        }
+
+        .product:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.10);
+        }
+
+        .product-detail-link {
+            display: inline-block;
+            font-size: 12px;
+            color: #b5565a;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .product-description.clamp {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* =========================
+           MODAL DETAIL PRODUK
+        ========================= */
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 20px;
+            max-width: 860px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 38px;
+            height: 38px;
+            border: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.95);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            font-size: 22px;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        .modal-image {
+            background: #f2f2f2;
+            min-height: 320px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+        }
+
+        .modal-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            cursor: zoom-in;
+        }
+
+        .modal-body {
+            padding: 32px 28px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-category {
+            font-size: 12px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #999;
+            margin-bottom: 8px;
+        }
+
+        .modal-body h2 {
+            font-size: 26px;
+            line-height: 1.2;
+            margin-bottom: 12px;
+        }
+
+        .modal-price {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 14px;
+        }
+
+        .modal-meta {
+            font-size: 13px;
+            color: #777;
+            margin-bottom: 4px;
+        }
+
+        .modal-desc {
+            margin: 16px 0 22px;
+            line-height: 1.7;
+            color: #555;
+            font-size: 14px;
+            white-space: pre-line;
+        }
+
+        .modal-body .product-button {
+            padding: 14px 20px;
+            font-size: 14px;
+            margin-top: auto;
+        }
+
+        /* =========================
+           TENTANG KAMI + LOKASI
+        ========================= */
+
+        .about-info {
+            max-width: 1000px;
+            margin: 40px auto 0;
+            display: grid;
+            grid-template-columns: 1fr 1.4fr;
+            gap: 24px;
+            text-align: left;
+            align-items: stretch;
+        }
+
+        .about-card {
+            background: rgba(255,255,255,0.75);
+            border-radius: 18px;
+            padding: 26px;
+        }
+
+        .about-card h3 {
+            font-size: 18px;
+            margin-bottom: 14px;
+        }
+
+        .about-card p {
+            margin: 0 0 12px;
+            line-height: 1.7;
+            color: #444;
+        }
+
+        .about-card .label {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #888;
+            margin-bottom: 2px;
+        }
+
+        .map-button {
+            display: inline-block;
+            margin-top: 8px;
+            background: #222;
+            color: white;
+            padding: 12px 22px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .map-wrap {
+            border-radius: 18px;
+            overflow: hidden;
+            min-height: 320px;
+            background: #eee;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+        }
+
+        .map-wrap iframe {
+            width: 100%;
+            height: 100%;
+            min-height: 320px;
+            border: 0;
+            display: block;
+        }
+
+        @media (max-width: 800px) {
+            .modal {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-image {
+                min-height: 260px;
+                max-height: 340px;
+            }
+
+            .about-info {
+                grid-template-columns: 1fr;
+            }
+        }
+
     </style>
 </head>
 
@@ -523,7 +744,56 @@
         yang menarik, modern dan terjangkau.
     </p>
 
+    <div class="about-info">
+
+        <div class="about-card">
+            <h3>📍 Lokasi Toko</h3>
+
+            <div class="label">Alamat</div>
+            <p id="storeAddress"></p>
+
+            <div class="label">Jam Buka</div>
+            <p id="storeHours"></p>
+
+            <a id="mapLink" class="map-button" target="_blank" rel="noopener">
+                Buka di Google Maps
+            </a>
+        </div>
+
+        <div class="map-wrap">
+            <iframe
+                id="mapFrame"
+                title="Lokasi AM STORE KAWANGKOAN"
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+                allowfullscreen>
+            </iframe>
+        </div>
+
+    </div>
+
 </section>
+
+
+<!-- =========================
+     MODAL DETAIL PRODUK
+========================= -->
+
+<div class="modal-overlay" id="productModal" onclick="if (event.target === this) closeProduct()">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalName">
+        <button class="modal-close" onclick="closeProduct()" aria-label="Tutup">&times;</button>
+        <div class="modal-image" id="modalImage"></div>
+        <div class="modal-body">
+            <div class="modal-category" id="modalCategory"></div>
+            <h2 id="modalName"></h2>
+            <div class="modal-price" id="modalPrice"></div>
+            <div class="modal-meta" id="modalStock"></div>
+            <div class="modal-meta" id="modalSku"></div>
+            <div class="modal-desc" id="modalDesc"></div>
+            <button class="product-button" id="modalAdd">Tambah ke Keranjang</button>
+        </div>
+    </div>
+</div>
 
 
 <!-- =========================
@@ -653,7 +923,7 @@
                     : "Stok habis";
 
                 return `
-                    <div class="product">
+                    <div class="product" onclick="openProduct('${product.id}')">
                         <div class="product-image">
                             ${imageHtml}
                         </div>
@@ -667,11 +937,13 @@
 
                             ${
                                 product.description
-                                ? `<div class="product-description">
+                                ? `<div class="product-description clamp">
                                     ${escapeHtml(product.description)}
                                    </div>`
                                 : ""
                             }
+
+                            <span class="product-detail-link">Lihat detail →</span><br>
 
                             <div class="price">
                                 ${formatRupiah(product.price)}
@@ -684,7 +956,7 @@
                             <button
                                 class="product-button"
                                 ${product.stock <= 0 ? "disabled" : ""}
-                                onclick="addToCart('${product.id}')">
+                                onclick="event.stopPropagation(); addToCart('${product.id}')">
                                 ${product.stock > 0 ? "Tambah ke Keranjang" : "Stok Habis"}
                             </button>
                         </div>
@@ -709,6 +981,7 @@
                     description,
                     price,
                     stock,
+                    sku,
                     image_url,
                     is_featured,
                     category_id,
@@ -851,6 +1124,84 @@
         }
 
         updateCartCount();
+
+        /*
+         * =====================================================
+         * DETAIL PRODUK (MODAL)
+         * =====================================================
+         */
+
+        const productModal = document.getElementById("productModal");
+
+        function openProduct(productId) {
+            const product = allProducts.find(item => item.id === productId);
+            if (!product) return;
+
+            document.getElementById("modalImage").innerHTML = product.image_url
+                ? `<img src="${escapeHtml(product.image_url)}"
+                        alt="${escapeHtml(product.name)}"
+                        onclick="window.open(this.src, '_blank')">`
+                : `<span>Foto Produk</span>`;
+
+            document.getElementById("modalCategory").textContent =
+                product.categories?.name || "Produk";
+            document.getElementById("modalName").textContent = product.name;
+            document.getElementById("modalPrice").textContent =
+                formatRupiah(product.price);
+            document.getElementById("modalStock").textContent =
+                product.stock > 0
+                    ? `Stok tersedia: ${product.stock}`
+                    : "Stok habis";
+            document.getElementById("modalSku").textContent =
+                product.sku ? `SKU: ${product.sku}` : "";
+            document.getElementById("modalDesc").textContent =
+                product.description || "Belum ada deskripsi untuk produk ini.";
+
+            const addButton = document.getElementById("modalAdd");
+            addButton.disabled = product.stock <= 0;
+            addButton.textContent =
+                product.stock > 0 ? "Tambah ke Keranjang" : "Stok Habis";
+            addButton.onclick = () => addToCart(product.id);
+
+            productModal.classList.add("open");
+            document.body.style.overflow = "hidden";
+        }
+
+        function closeProduct() {
+            productModal.classList.remove("open");
+            document.body.style.overflow = "";
+        }
+
+        document.addEventListener("keydown", event => {
+            if (event.key === "Escape") closeProduct();
+        });
+
+        /*
+         * =====================================================
+         * LOKASI TOKO
+         * =====================================================
+         *
+         * GANTI nilai di bawah dengan alamat toko yang tepat.
+         * STORE_MAPS_URL (opsional): tempel link Google Maps toko
+         * (dari tombol "Bagikan" di Google Maps) agar tombol
+         * "Buka di Google Maps" langsung ke lokasi persis.
+         */
+
+        const STORE_ADDRESS = "AM STORE, Kawangkoan, Kab. Minahasa, Sulawesi Utara";
+        const STORE_HOURS = "Setiap hari, 08.00 – 20.00 WITA";
+        const STORE_MAPS_URL = "";
+
+        (function setupLocation() {
+            const query = encodeURIComponent(STORE_ADDRESS);
+
+            document.getElementById("storeAddress").textContent = STORE_ADDRESS;
+            document.getElementById("storeHours").textContent = STORE_HOURS;
+            document.getElementById("mapFrame").src =
+                `https://www.google.com/maps?q=${query}&output=embed`;
+            document.getElementById("mapLink").href =
+                STORE_MAPS_URL ||
+                `https://www.google.com/maps/search/?api=1&query=${query}`;
+        })();
 
         /*
          * MULAI AMBIL DATA DARI SUPABASE

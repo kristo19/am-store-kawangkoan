@@ -124,6 +124,40 @@
         .order-foot select { width:auto; }
         .pm-row { display:flex; justify-content:space-between; gap:10px; align-items:center; flex-wrap:wrap; border:1px solid #eee; border-radius:10px; padding:12px; margin-bottom:10px; }
         .qr-preview { width:120px; height:120px; object-fit:contain; border:1px solid #ddd; border-radius:10px; display:none; margin-top:10px; }
+
+        /* ---- menu tab ---- */
+        .tabs { display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap; }
+        .tab-btn { background:#fff; color:#222; border:1px solid #e5e5e5; display:inline-flex; align-items:center; gap:8px; }
+        .tab-btn.active { background:#222; color:#fff; border-color:#222; }
+        .tab-count { background:#d9534f; color:#fff; border-radius:20px; padding:1px 8px; font-size:12px; }
+
+        /* ---- transaksi ---- */
+        .summary-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:16px 0; }
+        .sum-card { background:#fafafa; border:1px solid #eee; border-radius:12px; padding:14px; }
+        .sum-card .num { font-size:22px; font-weight:800; margin-top:4px; }
+        .sum-card.alert { background:#fff4d6; border-color:#f0dc9a; }
+        .subtabs { display:flex; gap:8px; margin-bottom:12px; }
+        .subtab { background:#eee; color:#222; }
+        .subtab.active { background:#f3b9bd; }
+        .filters { display:grid; grid-template-columns:1fr auto auto; gap:10px; margin-bottom:14px; }
+        .filters select { width:auto; }
+        .trx-row { display:grid; grid-template-columns:1.1fr 1.1fr 1.4fr 1fr auto; gap:12px; align-items:center; border:1px solid #eee; border-radius:12px; padding:13px 15px; margin-bottom:10px; cursor:pointer; background:#fff; }
+        .trx-row:hover { border-color:#f3b9bd; background:#fffafa; }
+        .trx-stat { text-align:right; }
+        .proof-flag { display:block; margin-top:4px; font-size:11px; color:#1e40af; }
+        .modal { position:fixed; inset:0; background:rgba(0,0,0,.45); display:flex; align-items:flex-start; justify-content:center; padding:24px 12px; overflow-y:auto; z-index:1000; }
+        .modal-box { background:#fff; border-radius:14px; padding:22px; width:100%; max-width:640px; }
+        .proof-img { max-width:220px; width:100%; border-radius:10px; border:1px solid #ddd; margin-top:8px; display:block; }
+        .detail-row { display:flex; justify-content:space-between; gap:10px; padding:3px 0; }
+        @media (max-width: 800px) {
+            .summary-grid { grid-template-columns:repeat(2,1fr); }
+            .filters { grid-template-columns:1fr 1fr; }
+            .filters input { grid-column:1 / -1; }
+            .filters select { width:100%; }
+            .trx-row { grid-template-columns:1fr auto; }
+            .trx-items { display:none; }
+            .trx-row > :nth-child(2), .trx-row > :nth-child(4) { text-align:right; }
+        }
     </style>
 </head>
 <body>
@@ -156,6 +190,13 @@
     <section id="adminSection" class="hidden">
         <div id="adminMessage" class="message"></div>
 
+        <div class="tabs">
+            <button id="nav-produk" class="tab-btn active" onclick="showTab('produk')">Produk</button>
+            <button id="nav-transaksi" class="tab-btn" onclick="showTab('transaksi')">Transaksi <span id="trxBadge" class="tab-count hidden">0</span></button>
+            <button id="nav-pembayaran" class="tab-btn" onclick="showTab('pembayaran')">Metode Pembayaran</button>
+        </div>
+
+        <div id="tab-produk" class="tab-pane">
         <div class="panel">
             <div class="topbar">
                 <div>
@@ -239,27 +280,44 @@
             </div>
         </div>
 
-        <div class="panel">
-            <div class="topbar">
-                <div>
-                    <h2>Pesanan Masuk</h2>
-                    <p class="muted">Pantau pembayaran dan ubah status pesanan.</p>
-                </div>
-                <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                    <select id="orderFilter" onchange="renderOrders()" style="width:auto;">
-                        <option value="">Semua status</option>
-                        <option value="menunggu_pembayaran">Menunggu pembayaran</option>
-                        <option value="menunggu_konfirmasi">Menunggu konfirmasi</option>
-                        <option value="diproses">Diproses</option>
-                        <option value="dikirim">Dikirim</option>
-                        <option value="selesai">Selesai</option>
-                        <option value="dibatalkan">Dibatalkan</option>
-                    </select>
+        </div>
+        <!-- /tab-produk -->
+
+        <div id="tab-transaksi" class="tab-pane hidden">
+            <div class="panel">
+                <div class="topbar">
+                    <div>
+                        <h2>Transaksi</h2>
+                        <p class="muted">Pantau pesanan yang sedang berjalan dan riwayat transaksi yang sudah selesai.</p>
+                    </div>
                     <button class="btn-secondary" onclick="loadOrders()">Refresh</button>
                 </div>
+
+                <div id="trxSummary" class="summary-grid"></div>
+
+                <div class="subtabs">
+                    <button id="sub-berjalan" class="subtab active" onclick="setTrxView('berjalan')">Berjalan</button>
+                    <button id="sub-riwayat" class="subtab" onclick="setTrxView('riwayat')">Riwayat</button>
+                </div>
+
+                <div class="filters">
+                    <input id="trxSearch" type="search" placeholder="Cari kode pesanan, nama, atau nomor HP..." oninput="renderOrders()">
+                    <select id="trxPeriod" onchange="renderOrders()">
+                        <option value="all">Semua waktu</option>
+                        <option value="today">Hari ini</option>
+                        <option value="7d">7 hari terakhir</option>
+                        <option value="30d">30 hari terakhir</option>
+                        <option value="month">Bulan ini</option>
+                    </select>
+                    <select id="orderFilter" onchange="renderOrders()"></select>
+                </div>
+
+                <div id="orderList">Memuat transaksi...</div>
             </div>
-            <div id="orderList" style="margin-top:15px;">Memuat pesanan...</div>
         </div>
+
+        <div id="tab-pembayaran" class="tab-pane hidden">
+
 
         <div class="panel">
             <div class="topbar">
@@ -318,8 +376,14 @@
             <h3 style="margin:26px 0 12px;">Daftar Metode Pembayaran</h3>
             <div id="pmList">Memuat...</div>
         </div>
+        </div>
+        <!-- /tab-pembayaran -->
     </section>
 </main>
+
+<div id="orderModal" class="modal hidden" onclick="if (event.target === this) closeOrder()">
+    <div class="modal-box" id="orderModalBody"></div>
+</div>
 
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -727,82 +791,279 @@
     let currentOrders = [];
     let currentMethods = [];
 
-    async function loadOrders() {
+    /* =========================================================
+       TRANSAKSI (berjalan & riwayat)
+    ========================================================= */
+
+    const RUNNING = ["menunggu_pembayaran", "menunggu_konfirmasi", "diproses", "dikirim"];
+    const HISTORY = ["selesai", "dibatalkan"];
+    const NEXT_ACTION = {
+        menunggu_pembayaran: { to: "diproses", label: "Tandai sudah dibayar" },
+        menunggu_konfirmasi: { to: "diproses", label: "Konfirmasi pembayaran" },
+        diproses: { to: "dikirim", label: "Tandai dikirim" },
+        dikirim: { to: "selesai", label: "Tandai selesai" }
+    };
+
+    let trxView = "berjalan";
+    let openOrderId = null;
+    let modalNote = null;
+    let statusBusy = false;
+
+    function showTab(name) {
+        ["produk", "transaksi", "pembayaran"].forEach(t => {
+            document.getElementById("tab-" + t).classList.toggle("hidden", t !== name);
+            document.getElementById("nav-" + t).classList.toggle("active", t === name);
+        });
+        if (name === "transaksi") loadOrders();
+    }
+
+    function fmtDate(v) {
+        return new Date(v).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" });
+    }
+
+    function periodStart(p) {
+        const now = new Date();
+        const d = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        if (p === "today") return d;
+        if (p === "7d") { d.setDate(d.getDate() - 6); return d; }
+        if (p === "30d") { d.setDate(d.getDate() - 29); return d; }
+        if (p === "month") return new Date(now.getFullYear(), now.getMonth(), 1);
+        return null;
+    }
+
+    function setTrxView(view) {
+        trxView = view;
+        document.getElementById("sub-berjalan").classList.toggle("active", view === "berjalan");
+        document.getElementById("sub-riwayat").classList.toggle("active", view === "riwayat");
+        fillStatusFilter();
+        renderOrders();
+    }
+
+    function fillStatusFilter() {
+        const sel = document.getElementById("orderFilter");
+        const set = trxView === "berjalan" ? RUNNING : HISTORY;
+        sel.innerHTML = '<option value="">Semua status</option>' +
+            set.map(s => `<option value="${s}">${STATUS_LABEL[s]}</option>`).join("");
+    }
+
+    async function loadOrders(silent) {
         const box = document.getElementById("orderList");
-        box.textContent = "Memuat pesanan...";
+        if (!silent) box.textContent = "Memuat transaksi...";
 
         const { data, error } = await supabaseClient
             .from("orders")
             .select("*, order_items(product_name, price, quantity, subtotal)")
             .order("created_at", { ascending: false })
-            .limit(200);
+            .limit(1000);
 
         if (error) {
             console.error(error);
-            box.textContent = "Gagal memuat pesanan: " + error.message + " (pastikan SQL checkout sudah dijalankan)";
+            if (!silent) box.textContent = "Gagal memuat transaksi: " + error.message + " (pastikan SQL checkout sudah dijalankan)";
             return;
         }
         currentOrders = data || [];
         renderOrders();
+        if (openOrderId) renderOrderModal();
+    }
+
+    function renderSummary(list) {
+        const needCheck = list.filter(o => o.status === "menunggu_konfirmasi").length;
+        const running = list.filter(o => RUNNING.includes(o.status)).length;
+        const done = list.filter(o => o.status === "selesai");
+        const revenue = done.reduce((s, o) => s + Number(o.total || 0), 0);
+
+        const cards = [
+            { label: "Perlu dicek (bukti bayar masuk)", value: needCheck, alert: needCheck > 0 },
+            { label: "Sedang berjalan", value: running },
+            { label: "Selesai", value: done.length },
+            { label: "Pendapatan (selesai)", value: formatRupiah(revenue) }
+        ];
+        document.getElementById("trxSummary").innerHTML = cards.map(c =>
+            `<div class="sum-card ${c.alert ? "alert" : ""}"><div class="muted">${c.label}</div><div class="num">${c.value}</div></div>`
+        ).join("");
     }
 
     function renderOrders() {
-        const box = document.getElementById("orderList");
-        const filter = document.getElementById("orderFilter").value;
-        const list = filter ? currentOrders.filter(o => o.status === filter) : currentOrders;
+        const q = document.getElementById("trxSearch").value.trim().toLowerCase();
+        const start = periodStart(document.getElementById("trxPeriod").value);
+        const statusFilter = document.getElementById("orderFilter").value;
 
+        // lencana di menu: semua pesanan yang masih berjalan
+        const runningAll = currentOrders.filter(o => RUNNING.includes(o.status)).length;
+        const badge = document.getElementById("trxBadge");
+        badge.textContent = runningAll;
+        badge.classList.toggle("hidden", !runningAll);
+
+        const inPeriod = currentOrders.filter(o => !start || new Date(o.created_at) >= start);
+        renderSummary(inPeriod);
+
+        document.getElementById("sub-berjalan").textContent =
+            "Berjalan (" + inPeriod.filter(o => RUNNING.includes(o.status)).length + ")";
+        document.getElementById("sub-riwayat").textContent =
+            "Riwayat (" + inPeriod.filter(o => HISTORY.includes(o.status)).length + ")";
+
+        const set = trxView === "berjalan" ? RUNNING : HISTORY;
+        let list = inPeriod.filter(o => set.includes(o.status));
+        if (statusFilter) list = list.filter(o => o.status === statusFilter);
+        if (q) {
+            list = list.filter(o => [o.order_code, o.customer_name, o.phone]
+                .some(v => String(v || "").toLowerCase().includes(q)));
+        }
+
+        const box = document.getElementById("orderList");
         if (!list.length) {
-            box.innerHTML = "<p class='muted'>Belum ada pesanan.</p>";
+            box.innerHTML = "<p class='muted'>" + (trxView === "berjalan"
+                ? "Tidak ada transaksi yang sedang berjalan."
+                : "Belum ada riwayat transaksi.") + "</p>";
             return;
         }
 
         box.innerHTML = list.map(o => {
-            const phone = String(o.phone).replace(/\D/g, "").replace(/^0/, "62");
-            const date = new Date(o.created_at).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" });
-            const items = (o.order_items || []).map(i =>
-                `<div><span>${escapeHtml(i.product_name)} × ${i.quantity}</span><span>${formatRupiah(i.subtotal)}</span></div>`
-            ).join("");
-            const options = Object.entries(STATUS_LABEL).map(([v, l]) =>
-                `<option value="${v}" ${o.status === v ? "selected" : ""}>${l}</option>`).join("");
+            const its = o.order_items || [];
+            const qty = its.reduce((s, i) => s + i.quantity, 0);
+            const first = its[0]
+                ? escapeHtml(its[0].product_name) + (its.length > 1 ? " +" + (its.length - 1) + " lainnya" : "")
+                : "-";
 
             return `
-            <div class="order-card">
-                <div class="order-head">
-                    <div><strong>${escapeHtml(o.order_code)}</strong> <span class="muted">· ${date}</span></div>
-                    <span class="badge st-${o.status}">${STATUS_LABEL[o.status] || o.status}</span>
+            <div class="trx-row" onclick="openOrder('${escapeHtml(o.id)}')">
+                <div>
+                    <strong>${escapeHtml(o.order_code)}</strong>
+                    <div class="muted">${fmtDate(o.created_at)}</div>
                 </div>
-                <div><strong>${escapeHtml(o.customer_name)}</strong> ·
-                    <a href="https://wa.me/${phone}" target="_blank" rel="noopener">${escapeHtml(o.phone)}</a></div>
-                <div class="muted">${escapeHtml(o.address)}</div>
-                ${o.notes ? `<div class="muted">Catatan: ${escapeHtml(o.notes)}</div>` : ""}
-                <div class="order-items">${items}</div>
-                <div class="order-foot">
-                    <div>
-                        <div class="price">Total: ${formatRupiah(o.total)}</div>
-                        <div class="muted">${escapeHtml(o.payment_method_name)} (${TYPE_LABEL[o.payment_type] || o.payment_type})
-                            ${o.payment_proof_url ? ` · <a href="${escapeHtml(o.payment_proof_url)}" target="_blank" rel="noopener">Lihat bukti bayar</a>` : ""}</div>
-                    </div>
-                    <select onchange="setOrderStatus('${o.id}', this.value)">${options}</select>
+                <div>
+                    <strong>${escapeHtml(o.customer_name)}</strong>
+                    <div class="muted">${escapeHtml(o.phone)}</div>
+                </div>
+                <div class="trx-items muted">${qty} barang · ${first}</div>
+                <div>
+                    <div class="price">${formatRupiah(o.total)}</div>
+                    <div class="muted">${escapeHtml(o.payment_method_name)}</div>
+                </div>
+                <div class="trx-stat">
+                    <span class="badge st-${o.status}">${STATUS_LABEL[o.status] || o.status}</span>
+                    ${o.status === "menunggu_konfirmasi" && o.payment_proof_url ? '<span class="proof-flag">Bukti bayar masuk</span>' : ""}
                 </div>
             </div>`;
         }).join("");
     }
 
-    async function setOrderStatus(id, status) {
+    /* ---------- Detail transaksi (jendela pop-up) ---------- */
+
+    function openOrder(id) {
+        openOrderId = id;
+        modalNote = null;
+        renderOrderModal();
+        document.getElementById("orderModal").classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeOrder() {
+        openOrderId = null;
+        document.getElementById("orderModal").classList.add("hidden");
+        document.body.style.overflow = "";
+    }
+
+    function renderOrderModal() {
+        const o = currentOrders.find(x => x.id === openOrderId);
+        if (!o) { closeOrder(); return; }
+
+        const phone = String(o.phone).replace(/\D/g, "").replace(/^0/, "62");
+        const items = (o.order_items || []).map(i =>
+            `<div class="detail-row"><span>${escapeHtml(i.product_name)} × ${i.quantity}
+                <span class="muted">(${formatRupiah(i.price)})</span></span><span>${formatRupiah(i.subtotal)}</span></div>`
+        ).join("");
+        const options = Object.entries(STATUS_LABEL).map(([v, l]) =>
+            `<option value="${v}" ${o.status === v ? "selected" : ""}>${l}</option>`).join("");
+        const next = NEXT_ACTION[o.status];
+        const note = modalNote
+            ? `<div class="message show ${modalNote.type}">${escapeHtml(modalNote.text)}</div>` : "";
+
+        document.getElementById("orderModalBody").innerHTML = `
+            <div class="topbar">
+                <div>
+                    <h2 style="margin:0;">${escapeHtml(o.order_code)}</h2>
+                    <div class="muted">${fmtDate(o.created_at)}</div>
+                </div>
+                <span class="badge st-${o.status}">${STATUS_LABEL[o.status] || o.status}</span>
+            </div>
+
+            ${note}
+
+            <h3 style="margin:18px 0 6px;">Pembeli</h3>
+            <div><strong>${escapeHtml(o.customer_name)}</strong> ·
+                <a href="https://wa.me/${phone}" target="_blank" rel="noopener">${escapeHtml(o.phone)} (WhatsApp)</a></div>
+            <div class="muted">${escapeHtml(o.address)}</div>
+            ${o.notes ? `<div class="muted">Catatan: ${escapeHtml(o.notes)}</div>` : ""}
+
+            <h3 style="margin:18px 0 6px;">Barang</h3>
+            <div class="order-items">${items}</div>
+            <div class="detail-row"><strong>Total</strong><strong>${formatRupiah(o.total)}</strong></div>
+
+            <h3 style="margin:18px 0 6px;">Pembayaran</h3>
+            <div>${escapeHtml(o.payment_method_name)} <span class="muted">(${TYPE_LABEL[o.payment_type] || escapeHtml(o.payment_type)})</span></div>
+            ${o.payment_proof_url
+                ? `<a href="${escapeHtml(o.payment_proof_url)}" target="_blank" rel="noopener">
+                       <img class="proof-img" src="${escapeHtml(o.payment_proof_url)}" alt="Bukti pembayaran"></a>
+                   <div class="muted">Klik gambar untuk membuka ukuran penuh.</div>`
+                : `<div class="muted">${o.payment_type === "cod" ? "Bayar di tempat, tanpa bukti transfer." : "Belum ada bukti pembayaran."}</div>`}
+
+            <h3 style="margin:18px 0 6px;">Ubah status</h3>
+            <select onchange="changeOrderStatus('${escapeHtml(o.id)}', this.value)">${options}</select>
+
+            <div class="actions">
+                ${next ? `<button class="btn-primary" onclick="changeOrderStatus('${escapeHtml(o.id)}', '${next.to}')">${next.label}</button>` : ""}
+                ${RUNNING.includes(o.status) ? `<button class="btn-danger" onclick="changeOrderStatus('${escapeHtml(o.id)}', 'dibatalkan')">Batalkan pesanan</button>` : ""}
+                <button class="btn-secondary" onclick="closeOrder()">Tutup</button>
+            </div>`;
+    }
+
+    async function changeOrderStatus(id, status) {
+        const o = currentOrders.find(x => x.id === id);
+        if (!o || o.status === status || statusBusy) { renderOrderModal(); return; }
+
+        if (status === "dibatalkan" &&
+            !confirm("Batalkan pesanan " + o.order_code + "? Stok barang akan dikembalikan.")) {
+            renderOrderModal();
+            return;
+        }
+        if (o.status === "dibatalkan" &&
+            !confirm("Hidupkan kembali pesanan " + o.order_code + "? Stok barang akan dikurangi lagi.")) {
+            renderOrderModal();
+            return;
+        }
+
+        statusBusy = true;
         const { error } = await supabaseClient.rpc("admin_set_order_status", {
             p_order_id: id,
             p_status: status
         });
+        statusBusy = false;
 
         if (error) {
             console.error(error);
-            showMessage("adminMessage", "Gagal mengubah status: " + error.message, "error");
-        } else {
-            showMessage("adminMessage", "Status pesanan diperbarui.", "success");
+            modalNote = { type: "error", text: "Gagal mengubah status: " + error.message };
+            renderOrderModal();
+            return;
         }
-        await loadOrders();
+
+        modalNote = { type: "success", text: "Status diperbarui menjadi " + STATUS_LABEL[status] + "." };
+        await loadOrders(true);
         await loadProducts();
     }
+
+    document.addEventListener("keydown", e => {
+        if (e.key === "Escape" && openOrderId) closeOrder();
+    });
+
+    // Muat ulang otomatis tiap 60 detik saat menu Transaksi terbuka dan tidak ada pop-up detail
+    setInterval(() => {
+        const visible = !document.getElementById("tab-transaksi").classList.contains("hidden")
+            && !document.getElementById("adminSection").classList.contains("hidden");
+        if (visible && !openOrderId) loadOrders(true);
+    }, 60000);
+
+    fillStatusFilter();
 
     /* ---------- Metode pembayaran ---------- */
 
